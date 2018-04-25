@@ -1,0 +1,117 @@
+Izraelskie Kosmetyki Profesjonalne
+
+    def save(self, *args, **kwargs):
+        file_opened = openpyxl.load_workbook(filename=self.address_file)
+        active_sheet = file_opened.active
+        data_file = active_sheet.values
+        data_file = list(data_file)
+        for i in range(1, len(data_file)):
+            q = data_file[i][1]
+            w = AddressType.objects.get(name=data_file[i][2])
+            t = Address.objects.get(id=data_file[i][0])
+            p = Address(name=q, type_level=w, parent_id=t, is_active=True)
+            p.save()
+        super(AddressAddFile, self).save(*args, **kwargs)
+  
+  
+  
+class ProductAddFile(models.Model):
+    comments = models.CharField(max_length=124, blank=True, null=True, default=None)
+    product_file = models.FileField(upload_to='product_file_add/')
+    is_active = models.BooleanField(default=False)
+    start_import = models.BooleanField(default=False)
+    created = models.DateTimeField(auto_now_add=True, auto_now=False)
+    updated = models.DateTimeField(auto_now_add=False, auto_now=True)
+    modified_by = models.ForeignKey(User, blank=True, null=True, default=None)
+    def __str__(self):
+        return "%s" % self.id
+        # return "%s, %s" % (self.price_avg, self.name)
+    def __unicode__(self):
+        return "%s" % self.id
+        # return "%s, %s" % (self.price_avg, self.name)
+    class Meta:
+        verbose_name = 'ProductAddFile'
+        verbose_name_plural = 'ProductAddFiles'  
+  
+  
+  #maybe smth has to be imported
+  # put attention for Excel file version
+  
+ def save(self, *args, **kwargs):
+        file_opened = openpyxl.load_workbook(filename=self.product_file)
+        active_sheet = file_opened.active
+        data_file = active_sheet.values
+        data_file = list(data_file)
+        for i in range(1, len(data_file)):
+            name_common = data_file[i][0]
+			name = data_file[i][1]
+			ref_number = data_file[i][2]
+			name_pl = data_file[i][3]
+			size = data_file[i][4]
+			price = data_file[i][5]
+			discount = data_file[i][6]
+			category = data_file[i][7] #try delete it (not needed)
+			category_id = data_file[i][8]
+			zus_number = data_file[i][9]
+			d = data_file[i][10]
+			d_1 = data_file[i][11]
+			d_2 = data_file[i][12]
+            
+			new_product = Product(
+			name_common = name_common,
+			name = name,
+			ref_number = ref_number,
+			name_pl = name_pl,
+			size = size,
+			price = price,
+			discount = discount,
+			category = category_id,
+			description_3 = zus_number,
+			description = d,
+			description_1 = d_1,
+			description_2 = d_2,
+			is_active=True)
+					
+			new_product.save()
+				super(ProductAddFile, self).save(*args, **kwargs)
+
+########################################################################
+class ProductAddFileAdmin(admin.ModelAdmin):
+    list_display = [field.name for field in ProductAddFile._meta.fields]
+    class Meta:
+        model = ProductAddFile
+admin.site.register(ProductAddFile, ProductAddFileAdmin)
+########################################################################
+
+  
+  
+     def save(self, *args, **kwargs):
+		self.slug = slugify(self.name)
+		# self.slug = slugify(unidecode(self.name))
+		super(Product, self).save(*args, **kwargs)
+
+Best regards,
+Dmytro Kostiuk
+
+
+http://www.chidgilovitz.com/displaying-django-form-field-help-text-in-a-bootstrap-3-popover/
+
+
+Сардиния Италия
+
+Италии, все побережье Тирренского моря. Южнее Рима еще дешевле.
+
+Говорят, в ЮВА много куда можно поехать за морепродуктами. На личном опыте знаю только про Индонезию. В частности прекрасные рестораны с морепродуктами в Джимбаране (Бали, недалеко от Куты). Еще дешевле на Яве, там цены на уровне студенческой столовой почти, но выбора меньше.
+
+ 
+
+Филлипины
+
+Албания
+
+https://kosmetykaistylizacja.pl/
+
+
+
+https://www.youtube.com/watch?v=jkaXMmw04Es
+

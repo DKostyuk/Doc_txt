@@ -1,0 +1,19 @@
+0) Change to PL languege all letters, notesaH= 
+1) Add section ABOUT >>>> NEED  Foto of Tanya & Ulyana
+2)Section Kontakt - like previous - Check Mail delivering and write into DB
+3)Section News
+4) Table and Service (Promotion)
+5) Set link to Button (See more)
+6) Add about Personal Data collection
+7) Add Training Section
+
+
+Promotion
+
+number_in_line
+product
+start_date
+end_date
+is_active
+created_date
+

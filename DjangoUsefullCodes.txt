@@ -1,0 +1,198 @@
+это код примеров от CodingMedved
+
+urlpatterns = [
+	url(r'^admin/', admin.site.urls),
+	url(r'^', include('landing.urls')),
+]
+
+
+
+from . import views
+
+urlpatterns = [
+	url(r'^', views.landing, name='landing'),
+	url(r'^products/(?P<product_id>\w+)/$', views.product, name='product'),
+]
+
+
+
+<!-- Bootstrap-->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.min.css">
+
+<!-- jQuery -->
+	<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/js/bootstrap.min.js
+“></script>
+
+
+
+
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = (
+  os.path.join(BASE_DIR, "static",),
+)
+
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, "static", "media")
+
+
+
+
+
+from django import forms
+from .models import *
+
+class NameForm(forms.ModelForm):
+
+	class Meta:
+    	model = Name
+    	exclude = ["slug", "uuid", "is_featured", "created_by", "update_by", "created", "updated"]
+
+
+
+class EditUserForm(forms.Form):
+	# username = forms.CharField(required = False, max_length=32, label=u"Username")
+	password1 = forms.CharField(required = False, max_length=32, label="Password:",
+                             	widget=forms.PasswordInput(attrs={'placeholder': 'Enter new password'}))
+	password2 = forms.CharField(required = False, max_length=32, label="Password Confirmation:",
+                             	widget=forms.PasswordInput(attrs={'placeholder': 'Enter new password again'}))
+
+
+
+from django.db import models
+from django.contrib.auth.models import User
+
+
+class Profile(models.Model):
+	user = models.OneToOneField(User)
+	avatar = models.ImageField(upload_to="avatars/", null=True, blank=True, default="avatars/empty_avatar.jpg")
+	name = models.CharField(max_length=30, null=True, blank=True)
+	surname = models.CharField(max_length=30, null=True, blank=True)
+	displayed_name = models.CharField(max_length=48, null=True, blank=True)
+	email = models.EmailField(null=True, blank=True)
+	facebook = models.CharField(max_length=150, null=True, blank=True)
+	skype = models.CharField(max_length=150, null=True, blank=True)
+	uuid = models.CharField(max_length=100, blank=True, null=True, default=randomString)
+	special_status = models.ForeignKey(UserProfileSpecialStatus, blank=True, null=True, default=None)
+	link_for_payment = models.CharField(max_length=256, blank=True, null=True, default=None)
+	is_always_expand_comments = models.BooleanField(default=True)
+	created = models.DateTimeField(auto_now_add=True, auto_now=False)
+	updated = models.DateTimeField(auto_now_add=False, auto_now=True)
+
+	def __unicode__(self):
+    	try:
+        		return self.user.username
+    	except:
+        		return '%s' % self.user.id
+
+	class Meta:
+    	verbose_name = 'Profile'
+    	verbose_name_plural = 'Profiles'
+
+
+
+
+from django.contrib import admin
+from .models import *
+from django.core import urlresolvers
+
+
+class CourseAdmin (admin.ModelAdmin):
+	list_display = [field.name for field in Course._meta.fields]
+	class Meta:
+    	model = Course
+
+admin.site.register(Course, CourseAdmin)
+
+
+
+'users.context_processors.user_profile',
+
+
+from .models import Profile
+def user_profile(request):
+	try:
+    	print ("entered to mdw")
+    	user = request.user
+    	print user
+    	if not user.is_anonymous():
+        	print "not anon"
+        	profile = Profile.objects.get(user=user)
+        	return {"profile": profile}
+    	else:
+        	print "anonymous"
+        	pass
+	except:
+    		pass
+
+	return locals()
+
+
+
+data = {};
+        			 
+         	var csrf_token = $('#csrf_getting_form [name="csrfmiddlewaretoken"]').val();
+         	data["csrfmiddlewaretoken"] = csrf_token;
+         	var url = '/get_likes/'+message_id+'/';
+         	$.ajax({
+             	url: url,
+             	type: 'POST',
+             	data: data,
+             	cache: true,
+             	success: function (data) {
+                 	console.log("OK");
+                 	$('#likes_list').html();
+                 	$.each(data, function (key, value) {
+                    	$('#likes_list').append('<p>'+value.username+'</p>')
+                 	});
+                 	$('#modal_message_likes').modal('show');
+             	}
+         	})
+   		 
+   		 
+    
+
+
+
+
+from django.core.urlresolvers import reverse
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.http import JsonResponse
+
+def login_view(request):
+	form = LoginForm(request.POST or None)
+	if request.method=='POST' and form.is_valid():
+    	username=form.cleaned_data['username']
+    	print (username)
+    	password=form.cleaned_data['password']
+    	try:
+        	user = User.objects.get(username=username, is_active=True)#if there is no such user, it will go to except
+
+        	user=authenticate(username=username, password=password)
+        	print (user)
+        	try:
+            	UserProfile.objects.get_or_create(user=user)
+            	login(request, user)
+            	return HttpResponseRedirect(reverse('home'))
+        	except:
+            	return HttpResponseRedirect(reverse('login'))
+    	except:
+        	return HttpResponseRedirect(reverse('login'))
+	return render_to_response('user_profiles/login.html', locals(), context_instance=RequestContext(request))
+
+
+def logout_view(request):
+	print ("logging out")
+	user = request.user
+
+	if not user.is_anonymous():
+    	logout(request)
+	return HttpResponseRedirect(reverse("login"))
+    
+    
+
+

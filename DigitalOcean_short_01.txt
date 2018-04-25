@@ -1,0 +1,17 @@
+ssh root@46.101.197.148 #### connect to server
+touch .bashrc #### create file to auto-launch ssh keys
+sudo apt-get update
+sudo apt-get install aptitude
+$ sudo aptitude update
+$ sudo aptitude upgrade
+sudo aptitude install postgresql postgresql-contrib
+
+
+sudo useradd --system --gid webapps --shell /bin/bash --home /webapps/renew_project renew_project
+
+
+delete from auth_group_permissions; delete from auth_permission; delete from django_admin_log; delete from django_content_type;
+
+python manage.py dumpdata  --natural-foreign --natural-primary --exclude=contenttypes --exclude=auth.permission --indent=3 > initial_data.json
+
+python manage.py runserver 46.101.197.148:8001

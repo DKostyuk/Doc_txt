@@ -1,0 +1,123 @@
+python manage.py runserver -- запуск сервера джанго, пишем в строке Phycharm
+python manage.py runserver localhost:8001
+
+Новый App
+1. Создаем папку python
+2. прописываем в settings (базовая паапка проекта)
+			INSTALLED_APPS = [
+				'landing',
+				'products',
+				'orders',
+			]
+3. Копируем с готового App или создаем новые файлы admin, forms, models, urls, views
+4. добавляем в urls (базовая паапка проекта)
+			urlpatterns = [
+				url(r'^admin/', admin.site.urls),
+				url(r'^', include('landing.urls')),
+				url(r'^', include('products.urls')),
+				url(r'^', include('orders.urls')),
+			]
+
+python manage.py makemigrations	Название App 	# следать миграйнс потом миграйт для прописание в БД таблицы с моделс
+python manage.py migrate
++ надо зарегистрировать таблицу в admin.py
+
+python manage.py createsuperuser		# создание администратора админки Джанго, потом будет введение имени и пароля
+
+
+для того чтобы записывались введенные значения пользователем в таблицу - в forms.py надо прописать
+        exclude = [""] # поля котрые надо исключить - сейчас будут включены все поля
+		fields = []   # поля которые надо включить, надо указать один из двух параметров
++ добавить во views - импорт формы --- from .forms import SubscriberForm
++ добавить во views - в функцию отрисовки --- form = SubscriberForm(request.POST or None)
++ отрисовка на html
+
+ModelForm - форма делается на основе существующей в Джанго моделе (предустановлена)
+
+{% csrf_token %} - тег добавляет скрытое поле для Джанго, чтобы отправлялись только со страницы сайта, а не с внешних источников
+
+
+    def __str__(self):
+        return "User %s %s" % (self.name, self.email,)
+Выводит в админке все поля по умолчанию - здесь поля перечисляются и их порядок
+
+    class Meta:
+        verbose_name = 'MySubscriber'
+        verbose_name_plural = 'A lot of Subscribers'
+Изменить название таблицы
+
+
+{{ for.as_p}}		# отрисовываются все поля формы (кроме id) как параграфы <p>
+
+
+Чтобы отрисовать страницу единицы Товара по его id
+1. в файле urls (App которого отрисовываем) + from products import views
+urlpatterns = [
+    url(r'^product/(?P<product_id>\w+)/$', views.product, name='product'),
+]
+2. в файле views (принимает request и id) + from blogs.models import *
+def product(request, product_id):
+    product = Product.objects.get(id=product_id)
+    return render(request, 'products/product.html', locals())
+3. рисуем темплейт (product.html), который принимает переменную product(равному id), как пример {{product.name}} 
+4. сделать ссылку на странице, откуда хотим переходить по клику
+<a href="{% url 'product' product_image.product.id %}">
+	<img src="{{ product_image.image.url }}" class = "img-responsive">
+</a>
+
+
+
+Добавление JQuery - селектор - class, id эелемента, data-атрибут
+1. Элементы, значение которых должно быть считано и передано, должны иметь свой id (так понятнее)
+2. Прописываем в base.html JQuery - тогда будет распространяться на все html, там где есть base либо в конретном html
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+	<!-- указываем на путь к файлу с подключением static  --- jQuery -->
+    <script src="{% static 'js/scripts.js' %}"></script>
+
+
+	
+	Достать ключ сессии и вести учет по этому ключу
+1. во views прописать (например, для страницы view product)
+    session_key = request.session.session_key
+    if not session_key:
+        request.session.cycle_key()
+
+		
+		
+		
+AJAX
+Пример кода
+			var data = {};    # - будут данные которые мы отправляем, например id Продукта, и кол-во	 
+         	var csrf_token = $('#csrf_getting_form [name="csrfmiddlewaretoken"]').val(); 	# это и следующая строчка надо Django чтобы делать POST запрос
+         	data["csrfmiddlewaretoken"] = csrf_token;
+         	var url = '/get_likes/'+message_id+'/';		# адресс на который необходимо отправлять POST запрос
+         	$.ajax({
+             	url: url,
+             	type: 'POST',
+             	data: data,
+             	cache: true,
+             	success: function (data) {
+                 	console.log("OK");
+                 	$('#likes_list').html();
+                 	$.each(data, function (key, value) {
+                    	$('#likes_list').append('<p>'+value.username+'</p>')
+                 	});
+                 	$('#modal_message_likes').modal('show');
+             	}
+         	})
+
+C:\Python36\python.exe
+
+
+C:\Windows\System32\drivers\etc
+
+На будущее для тех, кто натыкается на те же грабли и выходит на эту статью с ответом (как и я):
+покопали дальше, выяснили, что это можно сделать и в настройках, только для панелей они отдельные:
+File - Settings - Appearance & Behaviour - Appearance: Theme (панели и общее оформление)
+File - Settings - Editor - Colors&Fonts: Scheme (оформление в редакторе)
+Ответ написан более года назад
+
+

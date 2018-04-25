@@ -1,0 +1,106 @@
+import re
+
+match = re.search('pattern', 'Search in pattern in the text patternpattern')
+
+print(match)
+print(match.re.pattern)
+print(match.string)
+print(match.start())
+print(match.end())
+
+regex = re.compile('pattern')
+print(regex.search('Search in pattern in the text patternpattern').start())
+
+print(regex.findall('Search in pattern in the text patternpattern'))
+
+print(re.match('Match', 'Match - test function text'))
+print(re.match('text', 'Match - test function text'))
+
+import re
+
+def all_matches(text, pattern):
+	print(pattern)
+	regobj = re.compile(pattern)
+	for m in regobj.finditer(text):
+		print(str(m.start())+'-'+str(m.end())+':'+text[m.start():m.end()])
+#all_matches('xyxxxxxxxxxxyyxyyxy', 'xy*')
+#all_matches('xyxxxxxxxxxxyyxyyxy', 'xy+')
+#all_matches('xyxxxxxxxxxxyyxyyxy', 'xy?')
+#all_matches('xyxxxxxxxxxxyyxyyxy', 'xy{3}')
+#all_matches('xyyyyyyyyxxxxxxxxxxyyxyyxy', 'xy{4,5}')
+#all_matches('xyxxxxyyyyyyyyyxxxxxxyyxyyxy', 'xy{2,}')
+#all_matches('xx..  .yyyxxx.. ', '[^. ]+')
+#all_matches('A94B2c4 xyz08', '[A-B][0-9]')
+#all_matches('A94B2c4 xyz08', '[A-Ba-z][0-9]')
+#all_matches('A94B2c4 xyz08', '[A-B a-z][0-9]')
+#all_matches('Silk road', 'S.+k')
+#all_matches('This is 1-st example', r'\d+') # ищет позиции всех цифр
+#all_matches('T22hi3s is 1-st example', r'\D+') # ищет строки все кроме цифр - до цифр и после
+#all_matches('This is 1-st example', r'\s+') # ищет все пробелы
+#all_matches('This is 1-st example', r'\S+') # ищет все кроме пробелов
+#all_matches('This is, 1-st example', r'\w+') # ищет все без знаков препинания, без пробелов - слова-буквы
+#all_matches('This is, 1-st example', r'\W+') # ищет все знаки препинания, пробелы - короче без слов-букв
+#all_matches('T Realrtive position in regular expression', r'^\w+') # ищет слово-букву с начало строки
+#all_matches('T Realrtive position in regular expression', r'\A\w+') # ищет слово-букву с начало строки
+#all_matches('T Realrtive position in regular expression', r'\w+$') # ищет слово-букву с конца строки
+#all_matches('T Realrtive position in regular expression', r'\w+\Z') # ищет слово-букву с конца строки
+#all_matches('T Realrtive position in regular expression red', r'\br\w+') # ищет слово которое начинается (b-begining) c r - выводит слово и позиции
+#all_matches('T Realrtive position in regular expression red', r'\br|w+') # ищет слово которое начинается (b-begining) c r - выводит букву и позицию
+all_matches('T Realrtive position in regular expression', r'\Bg\B') # ищет g в середине слова
+
+####################################################
+regex = re.compile('x([xy]+)(y)')
+match = regex.search('xyxxxyxxxyxyxy')
+
+print(match.groups())
+print(match.group(2)
+#########################################
+regex = re.compile('x(?P<first>[xy]+)(?P<second>y)') # вручную задали имена группам
+match = regex.search('xyxxxyxxxyxyxy')
+
+print(match.groups())
+print(match.group('first'))
+print(match.group('second'))
+
+print(match.groupdict()) # выведет словарь состоящий из этих групп и можем доступиться по имени - только если задать имена
+##############################################
+regex = re.compile('y((x|y)+)')
+match = regex.search('yxxyyxyxy')
+print(match.groups())
+print(match.group(1))
+print(match.group(2))
+#######################################################
+
+m = re.compile('x*y',re.IGNORECASE)
+print(m.findall('XXXYYYXXXY'))
+
+print(re.findall('x*y','XXXYYYXXXY', re.IGNORECASE))
+###############################################################
+m = re.compile('(^xy{2}) | (yx{2}$)',re.MULTILINE)
+print(m.findall('xyxyxxxyxx\nxyyxxxxx'))
+
+print(re.findall('(^xy{2})|(yx{2}$)','xyxyxxxyxx\nxyyxxxxx', re.MULTILINE))
+print(re.findall('^x', 'x\nx\nx\n', re.MULTILINE))
+#print(re.match('a\nb\n', 'a\nb\nc', re.MULTILINE))
+print(re.findall('^b', 'b\nb\nb\n', re.MULTILINE))
+print(re.findall('(^xy{2}|yx{2}$)','xyyxyyxxxyxx\nxyyxxyxx', re.MULTILINE))
+########################################################
+p = re.compile(r"z.x", re.DOTALL)
+print(p.search('xyyyz\nxyyxx'))
+
+print(re.search(r"z.x", 'xyyyz\nxyyxx', re.DOTALL))
+##################################################
+
+regex = re.compile("""
+				# This comments
+	    \w+   # alphanumeric
+	    @         #at
+	    \w+       #alphanumeric
+	    .         #dot
+	    (com|net|org)          #com or org or net
+	""", re.VERBOSE)
+
+print(regex.search('this1@email12.com').start())
+######################################################
+
+print(re.findall('(?i)x*y', "XXXYYYXXXY"))  # так можно задавать флаги (?i) - IGNORECASE

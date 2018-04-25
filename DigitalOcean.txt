@@ -1,0 +1,359 @@
+https://stackoverflow.com/questions/6236078/how-to-clear-the-cache-of-nginx
+http://michal.karzynski.pl/blog/2013/06/09/django-nginx-gunicorn-virtualenv-supervisor/
+https://coderwall.com/p/mvsoyg/django-dumpdata-and-loaddata
+https://coderwall.com/p/kogbla/django-fixture-dumpdata-loaddata-and-integrity-error
+
+
+https://stackoverflow.com/questions/8170914/get-a-list-of-python-packages-used-by-a-django-project
+https://stackoverflow.com/questions/739993/how-can-i-get-a-list-of-locally-installed-python-modules
+
+https://simpleisbetterthancomplex.com/tutorial/2016/10/24/how-to-add-social-login-to-django.html
+https://www.youtube.com/watch?v=JTzCB6pRJlU
+https://www.linkedin.com/learning/django-2-building-a-social-website/adding-social-authentication-to-your-site
+
+#######################################################################
+
+class Promotion(models.Model):
+	product = models.ForeignKey(Product, blank=True, null=True, default=None)
+    rate = models.Int(blank=True, null=True, default=None)
+	page = models.CharField(max_length=124, blank=True, null=True, default='home')
+	comments = models.CharField(max_length=124, blank=True, null=True, default=None)
+	start_date = models.DateTimeField(auto_now_add=True, auto_now=False)
+    end_date = models.DateTimeField(auto_now_add=True, auto_now=False)
+	is_active = models.BooleanField(default=False)
+    created = models.DateTimeField(auto_now_add=True, auto_now=False)
+    updated = models.DateTimeField(auto_now_add=False, auto_now=True)
+    modified_by = models.ForeignKey(User, blank=True, null=True, default=None)
+
+    def __str__(self):
+        return "%s" % self.id
+        # return "%s, %s" % (self.price_avg, self.name)
+
+    def __unicode__(self):
+        return "%s" % self.id
+        # return "%s, %s" % (self.price_avg, self.name)
+
+    class Meta:
+        verbose_name = 'Promotion'
+        verbose_name_plural = 'Promotions'
+		
+#############################
+		
+class PromotionAdmin(admin.ModelAdmin):
+    list_display = [field.name for field in Promotion._meta.fields]
+
+    class Meta:
+        model = Promotion
+
+admin.site.register(Promotion, PromotionAdmin)
+
+###############################################################################
+https://www.youtube.com/watch?v=zWziE0A8eLg
+
+##################################################################################
+# General steps to login
+ssh root@159.89.97.157			# root@renew
+sudo su - renew_project			#renew_project@renew
+source bin/activate				#(renew_project)renew_project@renew
+ls								# check where we are (should be folder bin, renew ....)
+
+##################################################################################
+
+
+
+
+##### create virtual environment
+	sudo aptitude install python-virtualenv
+	
+
+# create home folder for user, and assing rights for user
+sudo mkdir -p /webapps/renew_project/
+sudo chown renew_project /webapps/renew_project/
+
+sudo su - renew_project		# log in as user
+cd /webapps/renew_project/	## go to project home folder
+python						# check version of python (default version)
+python3						# check about python3 version
+virtualenv .				# create virtual environment for python (default version)
+virtualenv . -p python3		# create virtual environment for python3 - could be path added
+
+ls							# show all folders
+source bin/activate			# log in to project virtual environment
+pip install django			# install django inside project virtual environment
+pip install Pillow
+pip install psycopg2
+pip install psycopg2-binary
+pip install gunicorn		# in (renew_project)
+
+pip install -r requirements.txt		# file requirements.txt could be created 
+									# with the list of all things that have to be installed for the project
+									# file has to be in teh same folder where you run the code "pip instal ..."
+									# or write the path to file
+
+#########################################
+
+##### before creating DUMP DATABASE
+# in settings.py (bottom) - change some settings based on another file settings_prod.py
+
+try:
+	from .settings_prod import *
+except:
+	pass
+
+	
+# for sure - create that file settings_prod1.py with the code 
+#############
+# IMPORTANT - settings_prod1.py
+# then (on the server) we will rename settings_prod1.py >>>>> settings_prod.py
+
+DEBUG = False			# there will no message for ERRORS
+ALLOWED_HOSTS = ['*']	# we can input IP address of the server where we can run our project
+
+#settings for db on server - standard construction
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',	#psycopg2 - connector Django & Postgres, have to be installed on the server
+        'NAME': 'db1',
+        'USER': 'renew_project',
+        'PASSWORD': 'Tropinka123!',
+        'HOST': 'localhost',
+        'PORT': '',                      # Set to empty string for default.
+    }
+}
+
+# static files
+python manage.py collectstatic
+# check static_prod folder 
+
+
+python manage.py dumpdata  --indent=3 > initial_data.json		# --indent=3  will add visual tabs
+
+python manage.py dumpdata  --exclude=contenttypes --exclude=auth.permission --indent=3 > initial_data.json
+
+
+
+# add project to GIT master
+
+#
+
+#########################################
+									
+####in server terminal									
+									
+mkdir renew			# create folder "renew"
+ls 					# check for "renew" folder
+cd renew			# go to "renew" folder
+git init .			# initialization of repository
+
+git remote add origin https://github.com/DKostyuk/renew.git			# add from github link
+git pull origin master												# from project folder
+ls											# check of adding the project
+
+cd renew_project							# go to folder "renew_project" or "renew"
+ls											# check the file settings_prod1.py
+mv "settings_prod1.py" "settings_prod.py"	# rename file settings_prod1 >>>> settings_prod
+ls											# check file settings_prod.py (after rename)
+
+
+python manage.py migrate						# all migrations must be Ok
+python manage.py loaddata initial_data.json		# load DB inside server
+python manage.py runserver 159.89.97.157:8001	# try to start server
+
+	 
+#############################################
+#Gunicorn
+########################################
+ls							# in (renew_project)
+cd bin 						# go to folder "bin"
+touch gunicorn_start		# create file "gunicorn_start"
+nano gunicorn_start			# open file "gunicorn_start"
+
+# input teh following data into file "gunicorn_start"
+##########################################################################################################
+#!/bin/bash
+
+NAME="renew_project_app"                                  	# Name of the application
+DJANGODIR=/webapps/renew_project/renew             			# Django project directory
+SOCKFILE=/webapps/renew_project/run/gunicorn.sock  			# we will communicate using this unix socket
+USER=renew_project                                        	# the user to run as
+GROUP=webapps                                     			# the group to run as
+NUM_WORKERS=3                                     			# how many worker processes should Gunicorn spawn
+DJANGO_SETTINGS_MODULE=renew_project.settings             	# which settings file should Django use
+DJANGO_WSGI_MODULE=renew_project.wsgi                     	# WSGI module name
+
+echo "Starting $NAME as `whoami`"
+
+# Activate the virtual environment
+cd $DJANGODIR
+source ../bin/activate
+export DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
+export PYTHONPATH=$DJANGODIR:$PYTHONPATH
+
+# Create the run directory if it doesn't exist
+RUNDIR=$(dirname $SOCKFILE)
+test -d $RUNDIR || mkdir -p $RUNDIR
+
+# Start your Django Unicorn
+# Programs meant to be run under supervisor should not daemonize themselves (do not use --daemon)
+exec ../bin/gunicorn ${DJANGO_WSGI_MODULE}:application \
+  --name $NAME \
+  --workers $NUM_WORKERS \
+  --user=$USER --group=$GROUP \
+  --bind=unix:$SOCKFILE \
+  --log-level=debug \
+  --log-file=-					
+##############################################################################################################
+sudo chmod u+x bin/gunicorn_start							# without Log OUT
+# or
+sudo chmod u+x /webapps/renew_project/bin/gunicorn_start	# in root@renew
+sudo su - renew_project										# log in as user >>> renew_project@renew
+ls															# just to check (bin, renew etc.)
+bin/gunicorn_start											# start gunicorn on server (work through SOCKER)
+logout														# to root@renew
+sudo aptitude install supervisor							# in root@renew >>> install package (work on background and will restart gunicorn)
+
+#login														# to renew_project@renew
+sudo su - renew_project
+mkdir -p /webapps/renew_project/logs/						# create folder for log-files
+touch /webapps/renew_project/logs/gunicorn_supervisor.log 	# create file for logs
+#logout														# to root@renew
+
+nano /etc/supervisor/conf.d/renew_project.conf				# in c >>> create or open to edit the file in path 
+## input into file
+###############################################################################################################
+[program:renew_project]
+command = /webapps/renew_project/bin/gunicorn_start                   ; Command to start app
+user = renew_project                                                  ; User to run as
+stdout_logfile = /webapps/renew_project/logs/gunicorn_supervisor.log  ; Where to write log messages
+redirect_stderr = true                                                ; Save stderr in the same log
+environment=LANG=en_US.UTF-8,LC_ALL=en_US.UTF-8                       ; Set UTF-8 as default encoding
+##############################################################################################################
+
+sudo supervisorctl reread									# in root@renew >>> re-read the supervisor settings >>> renew: available
+sudo supervisorctl update									# >>> renew: added process group
+
+$ sudo supervisorctl status renew_project                      
+renew_project                            RUNNING    pid 18020, uptime 0:00:50
+$ sudo supervisorctl stop renew_project 
+renew_project: stopped
+$ sudo supervisorctl start renew_project                       
+renew_project: started
+$ sudo supervisorctl restart renew_project
+renew_project: stopped
+renew_project: started
+
+####################################
+Nginx
+####################################
+
+sudo aptitude install nginx									# in root@renew
+sudo service nginx start
+#####You can navigate to your server (http://example.com) with your browser and Nginx should greet you with the words “Welcome to nginx!”.
+
+
+nano /etc/nginx/sites-available/renew_project				# open/create to edit file "renew_project"
+# input for the file "renew_project"
+###############################################################################################################################
+upstream renew_project_server {
+  # fail_timeout=0 means we always retry an upstream even if it failed
+  # to return a good HTTP response (in case the Unicorn master nukes a
+  # single worker for timing out).
+
+  server unix:/webapps/renew_project/run/gunicorn.sock fail_timeout=0;
+}
+
+server {
+
+    listen   80;
+    server_name example.com;
+
+    client_max_body_size 4G;
+
+    access_log /webapps/renew_project/logs/nginx-access.log;
+    error_log /webapps/renew_project/logs/nginx-error.log;
+ 
+    location /static/ {
+        alias   /webapps/renew_project/renew/static/static_prod/;
+    }
+    
+    location /media/ {
+        alias   /webapps/renew_project/renew/static/media/;
+    }
+
+    location / {
+        # an HTTP header important enough to have its own Wikipedia entry:
+        #   http://en.wikipedia.org/wiki/X-Forwarded-For
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        # enable this if and only if you use HTTPS, this helps Rack
+        # set the proper protocol for doing redirects:
+        # proxy_set_header X-Forwarded-Proto https;
+
+        # pass the Host: header from the client right along so redirects
+        # can be set properly within the Rack application
+        proxy_set_header Host $http_host;
+
+        # we don't want nginx trying to do something clever with
+        # redirects, we set the Host: header above already.
+        proxy_redirect off;
+
+        # set "proxy_buffering off" *only* for Rainbows! when doing
+        # Comet/long-poll stuff.  It's also safe to set if you're
+        # using only serving fast clients with Unicorn + nginx.
+        # Otherwise you _want_ nginx to buffer responses to slow
+        # clients, really.
+        # proxy_buffering off;
+
+        # Try to serve static files from nginx, no point in making an
+        # *application* server like Unicorn/Rainbows! serve static files.
+        if (!-f $request_filename) {
+            proxy_pass http://renew_project_server;
+            break;
+        }
+    }
+
+    # Error pages
+    error_page 500 502 503 504 /500.html;
+    location = /500.html {
+        root /webapps/renew_project/static/;
+    }
+}
+###############################################################################################################################
+
+#####Create a symbolic link in the sites-enabled folder:
+sudo ln -s /etc/nginx/sites-available/renew_project /etc/nginx/sites-enabled/renew_project
+sudo service nginx restart 			# in root@renew >>> restart
+
+#### Check in web-browser >>> see IPaddress
+
+cd /etc/nginx/sites-available 					# go to folder
+ls												# check files
+rm default										# delete file "default" (if any and not working)
+
+
+
+sudo service nginx restart
+
+sudo supervisorctl restart renew_project
+
+### Check again in web-browser >>> see IPaddress
+#########
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

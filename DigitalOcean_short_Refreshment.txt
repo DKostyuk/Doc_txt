@@ -1,0 +1,27 @@
+python manage.py collectstatic
+
+git commit -a -m "any comments about this commit"
+git push origin master
+
+ssh root@159.89.97.157			# root@renew
+sudo su - renew_project			#renew_project@renew
+source bin/activate
+cd renew
+
+git pull origin master
+
+python manage.py makemigrations
+python manage.py migrate
+
+cd renew_project							# go to folder "renew_project" or "renew"
+ls											# check the file settings_prod1.py
+mv "settings_prod1.py" "settings_prod.py"	# rename file settings_prod1 >>>> settings_prod
+ls											# check file settings_prod.py (after rename)
+
+
+
+logout
+
+sudo service nginx restart
+
+sudo supervisorctl restart renew_project
